@@ -18,20 +18,29 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Install setuptools and dependencies
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools
           sudo apt update
           sudo apt install -y build-essential python3-pip git openjdk-11-jdk zip unzip
 
-      - name: Install Android SDK
+      - name: Install Android SDK command line tools
         run: |
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -P $HOME
-          unzip $HOME/commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip $HOME/commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest:$PATH
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "build-tools;30.0.3" "platforms;android-31"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      - name: Install Android SDK components
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-31"
 
       - name: Install Python dependencies
         run: |
