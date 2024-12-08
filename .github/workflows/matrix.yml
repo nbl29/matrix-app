@@ -1,4 +1,4 @@
-name: Build
+name: Build APK
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-android:
-    name: Build for Android
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +18,10 @@ jobs:
         id: buildozer
         with:
           buildozer_version: stable
+          args: 'android debug deploy run log_level=2'
+          workdir: '.'  # Pastikan direktori kerja diatur dengan benar jika ada di folder tertentu
 
-      - name: Upload APK as an artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: MatrixApp.apk
