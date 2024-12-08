@@ -4,8 +4,8 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
 
 def hitung_determinan(matriks):
     """Menghitung determinan matriks"""
@@ -56,18 +56,12 @@ class MatrixApp(App):
     
     def input_matriks(self, instance):
         self.clear_layout()
-        self.layout.add_widget(Label(text="Input Matriks A"))
-        self.matrix_a_input = GridLayout(cols=2, rows=2, size_hint_y=None, height=40)
-        self.matrix_a_input.add_widget(Label(text="Baris A:"))
-        self.matrix_a_rows = TextInput(hint_text="Enter Rows", multiline=False)
-        self.matrix_a_input.add_widget(self.matrix_a_rows)
+        self.layout.add_widget(Label(text="Masukkan Matriks A"))
+        self.matrix_a_input = TextInput(hint_text="Contoh: 1,2;3,4", multiline=True)
         self.layout.add_widget(self.matrix_a_input)
 
-        self.layout.add_widget(Label(text="Input Matriks B"))
-        self.matrix_b_input = GridLayout(cols=2, rows=2, size_hint_y=None, height=40)
-        self.matrix_b_input.add_widget(Label(text="Baris B:"))
-        self.matrix_b_rows = TextInput(hint_text="Enter Rows", multiline=False)
-        self.matrix_b_input.add_widget(self.matrix_b_rows)
+        self.layout.add_widget(Label(text="Masukkan Matriks B"))
+        self.matrix_b_input = TextInput(hint_text="Contoh: 5,6;7,8", multiline=True)
         self.layout.add_widget(self.matrix_b_input)
 
         submit_button = Button(text="Submit", on_press=self.submit_matrices)
@@ -75,84 +69,72 @@ class MatrixApp(App):
 
     def submit_matrices(self, instance):
         try:
-            a_rows = int(self.matrix_a_rows.text)
-            b_rows = int(self.matrix_b_rows.text)
-            self.matrix_a = np.random.rand(a_rows, a_rows)
-            self.matrix_b = np.random.rand(b_rows, b_rows)
-            self.display_popup("Success", f"Matriks A dan B berhasil dimasukkan!")
-        except ValueError:
-            self.display_popup("Error", "Masukkan jumlah baris yang valid!")
+            a_str = self.matrix_a_input.text.strip()
+            b_str = self.matrix_b_input.text.strip()
+
+            self.matrix_a = np.array([[float(num) for num in row.split(',')] for row in a_str.split(';')])
+            self.matrix_b = np.array([[float(num) for num in row.split(',')] for row in b_str.split(';')])
+
+            self.display_popup("Success", "Matriks A dan B berhasil dimasukkan!")
+        except Exception as e:
+            self.display_popup("Error", f"Input tidak valid: {e}")
 
     def show_matrices(self, instance):
         if self.matrix_a is not None and self.matrix_b is not None:
-            matrix_a_str = f"A: {self.matrix_a}"
-            matrix_b_str = f"B: {self.matrix_b}"
-            self.display_popup("Matriks", matrix_a_str + "\n" + matrix_b_str)
+            self.display_popup("Matriks", f"A:\n{self.matrix_a}\n\nB:\n{self.matrix_b}")
         else:
             self.display_popup("Error", "Matriks belum diinput!")
 
     def add_matrices(self, instance):
-        if self.matrix_a is not None and self.matrix_b is not None:
-            try:
-                result = self.matrix_a + self.matrix_b
-                self.display_popup("Hasil A + B", str(result))
-            except ValueError:
-                self.display_popup("Error", "Dimensi matriks harus sama!")
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        try:
+            result = self.matrix_a + self.matrix_b
+            self.display_popup("Hasil A + B", str(result))
+        except ValueError:
+            self.display_popup("Error", "Dimensi matriks harus sama!")
 
     def subtract_matrices(self, instance):
-        if self.matrix_a is not None and self.matrix_b is not None:
-            try:
-                result = self.matrix_a - self.matrix_b
-                self.display_popup("Hasil A - B", str(result))
-            except ValueError:
-                self.display_popup("Error", "Dimensi matriks harus sama!")
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        try:
+            result = self.matrix_a - self.matrix_b
+            self.display_popup("Hasil A - B", str(result))
+        except ValueError:
+            self.display_popup("Error", "Dimensi matriks harus sama!")
 
     def multiply_matrices(self, instance):
-        if self.matrix_a is not None and self.matrix_b is not None:
-            try:
-                result = np.dot(self.matrix_a, self.matrix_b)
-                self.display_popup("Hasil A × B", str(result))
-            except ValueError:
-                self.display_popup("Error", "Dimensi matriks tidak sesuai untuk perkalian!")
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        try:
+            result = np.dot(self.matrix_a, self.matrix_b)
+            self.display_popup("Hasil A × B", str(result))
+        except ValueError:
+            self.display_popup("Error", "Dimensi matriks tidak sesuai untuk perkalian!")
 
     def transpose_matrices(self, instance):
-        if self.matrix_a is not None and self.matrix_b is not None:
-            transposed_a = self.matrix_a.T
-            transposed_b = self.matrix_b.T
-            self.display_popup("Transpose Matriks", f"A^T:\n{transposed_a}\nB^T:\n{transposed_b}")
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        transposed_a = self.matrix_a.T
+        transposed_b = self.matrix_b.T
+        self.display_popup("Transpose Matriks", f"A^T:\n{transposed_a}\n\nB^T:\n{transposed_b}")
 
     def calculate_determinant(self, instance):
-        if self.matrix_a is not None:
-            det_a = hitung_determinan(self.matrix_a)
-            det_b = hitung_determinan(self.matrix_b) if self.matrix_b is not None else None
-            result = f"Determinan A: {det_a}\nDeterminan B: {det_b}" if det_b else f"Determinan A: {det_a}"
-            self.display_popup("Determinan Matriks", result)
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        det_a = hitung_determinan(self.matrix_a)
+        det_b = hitung_determinan(self.matrix_b)
+        self.display_popup("Determinan Matriks", f"Determinan A: {det_a}\nDeterminan B: {det_b}")
 
     def solve_linear_system(self, instance):
-        if self.matrix_a is not None:
-            # Implement the solver here if needed
-            pass
-        else:
-            self.display_popup("Error", "Matriks belum diinput!")
+        try:
+            b = self.matrix_b.flatten()
+            solusi = solve_sistem_persamaan(self.matrix_a, b)
+            self.display_popup("Solusi SPL", f"Solusi: {solusi}")
+        except Exception as e:
+            self.display_popup("Error", f"Gagal menyelesaikan SPL: {e}")
 
     def display_popup(self, title, content):
-        content_label = Label(text=content)
-        popup = Popup(title=title, content=content_label, size_hint=(None, None), size=(400, 200))
+        content_label = Label(text=content, size_hint_y=None)
+        content_label.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
+        scroll_view = ScrollView(size_hint=(1, None), size=(400, 200))
+        scroll_view.add_widget(content_label)
+
+        popup = Popup(title=title, content=scroll_view, size_hint=(None, None), size=(400, 300))
         popup.open()
 
     def stop(self, instance):
-        self.stop()
+        App.get_running_app().stop()
 
 if __name__ == "__main__":
-    app = MatrixApp()
-    app.run()
+    MatrixApp().run()
