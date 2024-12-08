@@ -13,15 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
+      - name: Set up Java
         run: |
           sudo apt update
-          sudo apt install -y build-essential python3-pip git openjdk-11-jdk zip unzip
+          sudo apt install -y openjdk-11-jdk
 
       - name: Install Android SDK command line tools
         run: |
@@ -40,7 +35,7 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-31"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-31" "tools" "aidl"
 
       - name: Install Python dependencies
         run: |
