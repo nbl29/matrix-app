@@ -16,12 +16,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.13
+          python-version: 3.11
 
-      - name: Install distutils
+      - name: Install setuptools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-distutils
+          python -m pip install --upgrade pip setuptools
 
       - name: Install dependencies
         run: |
